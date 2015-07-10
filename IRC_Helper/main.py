@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
 import os
 import collections
+import emoji
+import re
 
 path = os.getenv('APPDATA')+"\\HexChat\logs"
 snoonet = path+"\\Snoonet"
@@ -35,21 +38,39 @@ def getAllNamesByIPs(ips):
 	f.seek(0)
 	return nicks
 
- 
 
 def findUsernamesByUsername(nick): #Can be spoofed by a /me
 	#Pretty sure emojis are ruining Python's day
-	try: 
+        #That's why you declare the encoding at the beginning 😏
+	try:
 		ips = getAllIPsUsedByName(nick)
 		join = getAllNamesByIPs(ips)
 		return join
-	#I should probably figure that out 
+	#I should probably figure that out
 	except UnicodeDecodeError:
 		pass
-	#But not right now, there's no 
+	#But not right now, there's no
 	except UnicodeEncodeError:
 		pass
 
+@TODO
+#This isn't properly implemented yet
+def stripEmojisFromName(nick):
+	"""So, the issue is trying to convert the nick into Unicode.
+	   If you attempt to return the nick as u'%s' % nick you'll
+	   obviously get an ordinal range error. I don't know how to
+	   fix this yet."""
+    try:
+        # UCS-4 - wide
+        emoji_re = re.compile(u'[U00010000-U0010ffff]')
+    except re.error: #don't be a hero, just try it
+        # UCS-2 - narrow
+        emoji_re = re.compile(u'[uD800-uDBFF][uDC00-uDFFF]')
+    nick = emoji_re.sub(u'\u25FD', nick)
+    return nick
+
+
 nick = ""
+#stripEmojisFromName(nick)
 nicks = findUsernamesByUsername(nick)
 print (nicks)
